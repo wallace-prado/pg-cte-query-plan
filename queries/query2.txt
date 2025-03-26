@@ -1,0 +1,31 @@
+WITH cust AS (
+SELECT
+	t.tenant_id,
+	t.tenant_name,
+	c.customer_id,
+	c.customer_name
+FROM
+	tenants t
+JOIN customers c ON
+	c.tenant_id = t.tenant_id ),
+	order_count AS (
+SELECT
+	o.tenant_id,
+	o.customer_id,
+	count(DISTINCT o.order_id) order_count,
+	count(DISTINCT oi.order_item_id) AS order_item_count
+FROM
+	orders o
+JOIN order_items oi ON
+	oi.order_id = o.order_id
+	AND oi.tenant_id = o.tenant_id
+GROUP BY
+	o.tenant_id,
+	o.customer_id)
+SELECT
+	*
+FROM
+	cust c
+JOIN order_count oc using(customer_id, tenant_id)
+WHERE
+	c.tenant_id = 'b2009ecc-8c7b-4567-befd-4482f744d62d'
